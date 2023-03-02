@@ -1,0 +1,61 @@
+receivers:
+  jaeger:
+    protocols:
+      thrift_http:
+        endpoint: "0.0.0.0:14278"
+
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+  # Dummy receiver that's never used, because a pipeline is required to have one.
+  otlp/spanmetrics:
+    protocols:
+      grpc:
+        endpoint: "localhost:65535"
+
+  # # Dummy receiver for the metrics pipeline
+  # otlp/servicegraph: 
+  #   protocols:
+  #     grpc:
+  #       endpoint: localhost:12345
+
+exporters:
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+
+  jaeger:
+    endpoint: "jaeger:14250"
+    tls:
+      insecure: true
+
+processors:
+  batch:
+  spanmetrics:
+    metrics_exporter: prometheus
+  
+  # servicegraph:
+  #   metrics_exporter: prometheus # Exporter to send metrics to
+  #   # latency_histogram_buckets: [100us, 1ms, 2ms, 6ms, 10ms, 100ms, 250ms] # Buckets for latency histogram
+  #   # dimensions: [cluster, namespace] # Additional dimensions (labels) to be added to the metrics extracted from the resource and span attributes
+  #   # store: # Configuration for the in-memory store
+  #   #   ttl: 2s # Value to wait for an edge to be completed
+  #   #   max_items: 200 # Amount of edges that will be stored in the storeMap    
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp, jaeger]
+      # processors: [spanmetrics, servicegraph, batch]
+      processors: [spanmetrics, batch]
+      exporters: [jaeger]
+    # The exporter name in this pipeline must match the spanmetrics.metrics_exporter name.
+    # The receiver is just a dummy and never used; added to pass validation requiring at least one receiver in a pipeline.
+    metrics/spanmetrics:
+      receivers: [otlp/spanmetrics]
+      exporters: [prometheus]
+
+    # metrics/servicegraph:
+    #   receivers: [otlp/servicegraph]
+    #   exporters: [prometheus]
