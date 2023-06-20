@@ -1,0 +1,35 @@
+version: '2.1'
+
+services:
+  coroot:
+    image: ghcr.io/coroot/coroot
+    container_name: coroot
+    ports:
+    - "8080:8080"
+    
+  coroot-node-agent:
+    privileged: true
+    pid: host
+    image: ghcr.io/coroot/coroot-node-agent
+    container_name: exporter
+    restart: unless-stopped
+    expose:
+      - 80
+    ports:
+      - "8888:80"
+    volumes:
+      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+      - /sys/kernel/debug:/sys/kernel/debug:rw
+    command: --cgroupfs-root=/host/sys/fs/cgroup
+  
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus/:/etc/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    restart: always
+
