@@ -1,6 +1,7 @@
 version: '2'
 services:  
   otel_collector:
+    container_name: otel
     networks:
       - backend
     image: otel/opentelemetry-collector-contrib:latest
