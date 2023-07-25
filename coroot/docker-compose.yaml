@@ -6,6 +6,12 @@ services:
     container_name: coroot
     ports:
     - "8080:8080"
+    environment:
+      BOOTSTRAP_CLICKHOUSE_ADDRESS: "clickhouse:9000"
+      BOOTSTRAP_CLICKHOUSE_USER: "annd2"
+      BOOTSTRAP_CLICKHOUSE_PASSWORD: "password"
+      BOOTSTRAP_CLICKHOUSE_DATABASE: "otel"
+      BOOTSTRAP_CLICKHOUSE_TRACES_TABLE: "otel_traces"
     
   coroot-node-agent:
     privileged: true
@@ -15,6 +21,8 @@ services:
     restart: unless-stopped
     expose:
       - 80
+    environment:
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://otel:4318/v1/traces"
     ports:
       - "8888:80"
     volumes:
@@ -23,7 +31,7 @@ services:
     command: --cgroupfs-root=/host/sys/fs/cgroup
   
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:latest
     container_name: prometheus
     volumes:
       - ./prometheus/:/etc/prometheus
@@ -31,5 +39,45 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
       - 9090:9090
+    restart: always
+  
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    env_file:
+      - ./grafana/config.monitoring
+    restart: always
+
+  otel:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel
+    volumes:
+      - ./otel/config.yaml:/etc/otel-config.yaml
+    command:
+      - --config=/etc/otel-config.yaml
+    # ports:
+    #   - 55678:55678
+    restart: always
+  
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse
+    ports:
+      - "9000:9000"
+      - "8123:8123"
+      - "9009:9009"
+    environment:
+      - CLICKHOUSE_USER=annd2
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+      - CLICKHOUSE_PASSWORD=password
+      # CLICKHOUSE_ADMIN_USER: "annd2"
+      # CLICKHOUSE_ADMIN_PASSWORD: "password"
+      # ALLOW_EMPTY_PASSWORD: yes
     restart: always
 
