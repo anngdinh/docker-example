@@ -28,11 +28,14 @@ exporters:
       max_interval: 30s
       max_elapsed_time: 300s
 
-
+  jaeger:
+    endpoint: "jaeger:14250"
+    tls:
+      insecure: true
 
 service:
   pipelines:
     traces:
       processors: [batch]
-      exporters: [clickhouse]
+      exporters: [clickhouse, jaeger]
       receivers: [otlp]

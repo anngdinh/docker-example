@@ -80,4 +80,39 @@ services:
       # CLICKHOUSE_ADMIN_PASSWORD: "password"
       # ALLOW_EMPTY_PASSWORD: yes
     restart: always
+  
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    # volumes:
+    #   - "./jaeger-ui.json:/etc/jaeger/jaeger-ui.json"
+    # command: --query.ui-config /etc/jaeger/jaeger-ui.json
+    # environment:
+    #   - METRICS_STORAGE_TYPE=prometheus
+    #   - PROMETHEUS_SERVER_URL=http://prometheus:9090
+    ports:
+      - 16686:16686
+      - 14269:14269 # http://localhost:14269/metrics
+    restart: always
+  
+  intake:
+    image: annd2/test-db:1.0.0
+    container_name: intake
+    restart: always
+    environment:
+      URL: 'root:password@tcp(mysql:3306)/mysql'
+      QUERY: 'SELECT User FROM user'
+    depends_on:
+      - mysql
+  
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    cap_add:
+      - SYS_NICE
+    restart: always
+    environment:
+      - MYSQL_DATABASE=root
+      - MYSQL_ROOT_PASSWORD=password
+    ports:
+      - '3306:3306'
 
