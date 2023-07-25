@@ -1,0 +1,9 @@
+version: '2'
+services:  
+  intake:
+    image: annd2/test-db:1.0.0
+    container_name: intake
+    restart: always
+    environment:
+      URL: 'root:password@tcp(localhost:3306)/mysql'
+      QUERY: 'SELECT User FROM user'

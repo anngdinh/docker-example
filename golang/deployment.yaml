@@ -1,0 +1,27 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: test-db
+  namespace: default
+  labels:
+    app: test-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-db
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: test-db
+    spec:
+      containers:
+        - name: test-db
+          image: annd2/test-db:1.0.0
+          env:
+            - name: URL
+              value: 'root:password@tcp(localhost:3306)/mysql'
+            - name: QUERY
+              value: 'SELECT User FROM user'
+      restartPolicy: Always
