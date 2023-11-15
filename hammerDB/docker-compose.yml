@@ -1,0 +1,13 @@
+version: '2'
+services:
+  # docker run -it --rm -v ~/.Xauthority:/root/.Xauthority -e DISPLAY=$DISPLAY --network=host --name hammerdb hammerdb bash
+  hammerdb:
+    image: tpcorg/hammerdb:mysql
+    environment:
+      - DISPLAY=localhost:10.0
+    volumes:
+      - ~/.Xauthority:/root/.Xauthority
+    network_mode: host
+    container_name: hammerdb
+    # command: bash
+    
