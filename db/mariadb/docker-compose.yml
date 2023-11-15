@@ -1,0 +1,48 @@
+version: '2'
+services:  
+  maria:
+    image: mariadb:latest
+    container_name: maria_customname
+    cap_add:
+      - SYS_NICE
+    restart: always
+    environment:
+      - MYSQL_DATABASE=root
+      - MYSQL_ROOT_PASSWORD=password
+    ports:
+      - '6603:3306'
+
+# docker run --name=mariadb-annd2 --hostname=ENG-DEV-OPS-01 --user=mysql --env=KOLLA_SERVICE_NAME=mariadb --env=KOLLA_CONFIG_STRATEGY=COPY_ALWAYS --volume=kolla_logs:/var/log/kolla/:rw --volume=/etc/localtime:/etc/localtime:ro --volume=mariadb:/var/lib/mysql:rw --volume=/etc/kolla//mariadb/:/var/lib/kolla/config_files/:ro --volume=/etc/timezone:/etc/timezone:ro --volume=/etc/localtime --volume=/etc/timezone --volume=/var/lib/kolla/config_files/ --volume=/var/lib/mysql --volume=/var/log/kolla/ --volume=./custom:/etc/mysql/conf.d --network=host --restart=unless-stopped --log-opt max-size=50m --log-opt max-file=5 --runtime=runc --detach=true kolla/ubuntu-source-mariadb:rocky kolla_start
+#   mariadb-annd2:
+#     image: kolla/ubuntu-source-mariadb:rocky
+#     container_name: mariadb-annd2
+#     hostname: ENG-DEV-OPS-01
+#     user: mysql
+#     environment:
+#       - KOLLA_SERVICE_NAME=mariadb
+#       - KOLLA_CONFIG_STRATEGY=COPY_ALWAYS
+#     volumes:
+#       - kolla_logs:/var/log/kolla/:rw
+#       - /etc/localtime:/etc/localtime:ro
+#       - mariadb:/var/lib/mysql:rw
+#       - /etc/kolla//mariadb/:/var/lib/kolla/config_files/:ro
+#       # - /etc/timezone:/etc/timezone:ro
+#       # - /etc/localtime
+#       # - /etc/timezone
+#       - /var/lib/kolla/config_files/
+#       - /var/lib/mysql
+#       - /var/log/kolla/
+#       - ./custom:/etc/mysql/conf.d
+#     network_mode: host
+#     restart: unless-stopped
+#     # log_opt:
+#     #   max-size: 50m
+#     #   max-file: 5
+#     runtime: runc
+#     # detach: true
+#     command: kolla_start
+# volumes:
+#   kolla_logs:
+#   mariadb:
+
+
